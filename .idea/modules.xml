@@ -3,7 +3,10 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/BuildItBigger.iml" filepath="$PROJECT_DIR$/BuildItBigger.iml" />
+      <module fileurl="file://$PROJECT_DIR$/androidjokelib/androidjokelib.iml" filepath="$PROJECT_DIR$/androidjokelib/androidjokelib.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/javajokelib/javajokelib.iml" filepath="$PROJECT_DIR$/javajokelib/javajokelib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jokeserver/jokeserver.iml" filepath="$PROJECT_DIR$/jokeserver/jokeserver.iml" />
     </modules>
   </component>
 </project>
