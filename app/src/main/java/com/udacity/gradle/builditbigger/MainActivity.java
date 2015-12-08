@@ -1,11 +1,13 @@
 package com.udacity.gradle.builditbigger;
 
 import android.content.Intent;
+import android.os.CountDownTimer;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.pkrobertson.androidjokes.HandleJokeActivity;
@@ -47,19 +49,35 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void tellJoke(View view){
+        final ProgressBar loadSpinner = (ProgressBar) findViewById(R.id.progress_bar_spinner);
+        loadSpinner.setVisibility(View.VISIBLE);
+
+
         // define custom onPostExecute behavior to launch activity with the result
         FetchJokeTask jokeTask = new FetchJokeTask () {
             @Override
-            protected void onPostExecute(String result) {
+            protected void onPostExecute(final String result) {
+                // if result is null, we've already waited a long time...
                 if (result == null) {
+
                     Toast.makeText(MainActivity.this,
                             getString(R.string.error_server),
                             Toast.LENGTH_LONG)
                             .show();
                 } else {
-                    Intent intent = new Intent(MainActivity.this, HandleJokeActivity.class);
-                    intent.putExtra(HandleJokeActivity.JOKE_EXTRA, result);
-                    startActivity(intent);
+                // if non-null, the response may have been fast so wait one second just to
+                // make sure spinner is shown for at least one second
+                    new CountDownTimer (1000, 500) {
+                        public void onTick(long millisUntilFinished) {
+                        }
+                        public void onFinish() {
+                            loadSpinner.setVisibility(View.GONE);
+                            Intent intent = new Intent(MainActivity.this, HandleJokeActivity.class);
+                            intent.putExtra(HandleJokeActivity.JOKE_EXTRA, result);
+                            startActivity(intent);
+                        }
+                    }.start();
+
                 }
             }
         };
