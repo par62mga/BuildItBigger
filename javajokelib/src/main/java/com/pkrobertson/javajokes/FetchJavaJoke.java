@@ -6,6 +6,8 @@ package com.pkrobertson.javajokes;
  */
 
 public class FetchJavaJoke {
+    private static int lastIndex = -1;
+
     private static String[] randomJokes = {
         "Mountain man definition of HARD DRIVE: Gettin home in the winter time.",
         "Mountain man definition of BYTE: Whut them dang flys do.",
@@ -22,11 +24,21 @@ public class FetchJavaJoke {
         "You might be a redneck Jedi if you have a cousin who bears a strong resemblance to Chewbacca."
     };
 
+    /**
+     * fetchRandomJoke -- return one of the above joke strings, the while loop is used to make sure
+     *     the same joke is not returned on successive calls.
+     * @return String containing the "random" joke
+     */
     public static String fetchRandomJoke () {
-        int index = (int)Math.floor(Math.random() * randomJokes.length);
-        if (index >= randomJokes.length) {
-            index = randomJokes.length - 1;
-        }
+        int index;
+        do {
+            index = (int) Math.floor(Math.random() * randomJokes.length);
+            if (index >= randomJokes.length) {
+                index = randomJokes.length - 1;
+            }
+        } while (index != lastIndex);
+
+        lastIndex = index;
         return (randomJokes[index]);
     }
 }

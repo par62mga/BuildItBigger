@@ -16,13 +16,17 @@ import com.pkrobertson.androidjokes.HandleJokeActivity;
  * MainActivity -- shared between free and paid versions. Specific productFlavor functionality
  *     is implemented within the MainActivityFragment
  */
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements AdvertisementHandler.HandleAdvertisementClose {
     private static final String JOKE_REQUEST = "101";
+
+    AdvertisementHandler mAdHandler;
+    String               mJokeResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mAdHandler = new AdvertisementHandler(this);
     }
 
 
@@ -48,7 +52,20 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * handleCloseCallback -- used to display joke after interstitial ad closed. This is never
+     *     called on the "paid" version
+     */
+    @Override
+    public void handleCloseCallback() {
+        displayJoke();
+    }
+
+    /**
+     * tellJoke -- used to handle the "tellJoke" button
+     */
     public void tellJoke(View view){
+        // show loading spinner while we fetch the joke
         final ProgressBar loadSpinner = (ProgressBar) findViewById(R.id.progress_bar_spinner);
         loadSpinner.setVisibility(View.VISIBLE);
 
@@ -59,7 +76,7 @@ public class MainActivity extends ActionBarActivity {
             protected void onPostExecute(final String result) {
                 // if result is null, we've already waited a long time...
                 if (result == null) {
-
+                    loadSpinner.setVisibility(View.GONE);
                     Toast.makeText(MainActivity.this,
                             getString(R.string.error_server),
                             Toast.LENGTH_LONG)
@@ -67,14 +84,15 @@ public class MainActivity extends ActionBarActivity {
                 } else {
                 // if non-null, the response may have been fast so wait one second just to
                 // make sure spinner is shown for at least one second
+                    mJokeResult = result;
                     new CountDownTimer (1000, 500) {
                         public void onTick(long millisUntilFinished) {
                         }
                         public void onFinish() {
                             loadSpinner.setVisibility(View.GONE);
-                            Intent intent = new Intent(MainActivity.this, HandleJokeActivity.class);
-                            intent.putExtra(HandleJokeActivity.JOKE_EXTRA, result);
-                            startActivity(intent);
+                            if (! mAdHandler.showAdvertisement()) {
+                                displayJoke();
+                            }
                         }
                     }.start();
 
@@ -92,5 +110,13 @@ public class MainActivity extends ActionBarActivity {
         //jokeToast.show();
     }
 
+    /**
+     * displayJoke -- launch HandleJokeActivity with the joke fetched from the async task
+     */
+    private void displayJoke () {
+        Intent intent = new Intent(MainActivity.this, HandleJokeActivity.class);
+        intent.putExtra(HandleJokeActivity.JOKE_EXTRA, mJokeResult);
+        startActivity(intent);
+    }
 
 }
